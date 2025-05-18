@@ -1,4 +1,4 @@
-cabal-version: 2.2
+cabal-version: 1.12
 
 -- This file has been generated from package.yaml by hpack version 0.37.0.
 --
@@ -6,13 +6,13 @@ cabal-version: 2.2
 
 name:           javasgrips
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/githubuser/javasgrips#readme>
-homepage:       https://github.com/githubuser/javasgrips#readme
-bug-reports:    https://github.com/githubuser/javasgrips/issues
-author:         Author name here
-maintainer:     example@example.com
-copyright:      2025 Author name here
-license:        BSD-3-Clause
+description:    Please see the README on GitHub at <https://github.com/bogo8liuk/javasgrips#readme>
+homepage:       https://github.com/bogo8liuk/javasgrips#readme
+bug-reports:    https://github.com/bogo8liuk/javasgrips/issues
+author:         Luca Borghi
+maintainer:     lucaborghi99@proton.me
+copyright:      2025 Luca Borghi
+license:        AGPL-3
 license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
@@ -21,7 +21,7 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/javasgrips
+  location: https://github.com/bogo8liuk/javasgrips
 
 library
   exposed-modules:
@@ -29,8 +29,6 @@ library
       Lib
       Parser
   other-modules:
-      Paths_javasgrips
-  autogen-modules:
       Paths_javasgrips
   hs-source-dirs:
       src
@@ -46,8 +44,6 @@ library
 executable javasgrips-exe
   main-is: Main.hs
   other-modules:
-      Paths_javasgrips
-  autogen-modules:
       Paths_javasgrips
   hs-source-dirs:
       app
@@ -65,8 +61,6 @@ test-suite javasgrips-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Paths_javasgrips
-  autogen-modules:
       Paths_javasgrips
   hs-source-dirs:
       test
