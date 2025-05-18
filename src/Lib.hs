@@ -8,6 +8,7 @@ import Text.Show.Unicode (urecover)
 import Ast
 import Parser (parseCommand)
 import Data.List (foldl')
+import Err (JError(..))
 
 newtype JState = JState { stack :: [(String, JValue)] }
 
@@ -43,12 +44,13 @@ eval :: String -> ReplState (Maybe String)
 eval cmd = do
     let parseRes = parseCommand cmd
     case parseRes of
-        Left err -> return Nothing
+        Left _ -> return $ Just ("*** " ++ show SyntaxError)
         Right token -> evalToken token
 
 evalToken :: JToken -> ReplState (Maybe String)
 evalToken (Value val) = return . Just $ showLess val
 evalToken (Cmd (Print val)) = return . Just $ show val
+--TODO: handle already existing binding
 evalToken (Cmd (Let id val)) = do
     store id val
     return Nothing
