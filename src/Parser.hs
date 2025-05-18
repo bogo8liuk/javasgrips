@@ -14,7 +14,9 @@ parseCommand = parse tokenParser ""
 -- | Lexer with reserved keywords
 lexer :: TokenParser ()
 lexer = makeTokenParser emptyDef
-    { reservedNames = ["stampa", "etichetta", "penetra"]
+    { reservedNames = ["stampa", "etichetta", "penetra", "catorcino", "è"]
+    , identStart = letter <|> char '_'
+    , identLetter = alphaNum <|> char '_' 
     }
 
 -- | Parser for a single token
@@ -22,7 +24,9 @@ tokenParser :: Parser JToken
 tokenParser = do
     token <- choice
         [ try printParser
-        , Value <$> valueParser
+        , try letParser
+        , try (Value <$> valueParser)
+        , printStackParser
         ]
     eof
     return token
@@ -32,6 +36,18 @@ printParser = do
     reserved lexer "stampa"
     reserved lexer "etichetta"
     Cmd . Print <$> valueParser
+
+printStackParser :: Parser JToken
+printStackParser = do
+    reserved lexer "penetra"
+    return $ Cmd PrintStack
+
+letParser :: Parser JToken
+letParser = do
+    reserved lexer "catorcino"
+    id <- identifier lexer
+    reserved lexer "è"
+    Cmd . Let id <$> valueParser
 
 valueParser :: Parser JValue
 valueParser = choice

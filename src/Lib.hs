@@ -7,15 +7,16 @@ import Control.Monad.State.Lazy (StateT (runStateT), MonadState (get, put), Mona
 import Text.Show.Unicode (urecover)
 import Ast
 import Parser (parseCommand)
+import Data.List (foldl')
 
-newtype JState = JState { stack :: [JValue] }
+newtype JState = JState { stack :: [(String, JValue)] }
 
 type ReplState = StateT JState IO
 
-getStack :: ReplState [JValue]
+getStack :: ReplState [(String, JValue)]
 getStack = stack <$> get
 
-putStack :: [JValue] -> ReplState ()
+putStack :: [(String, JValue)] -> ReplState ()
 putStack st = put $ JState { stack = st }
 
 repl :: IO ()
@@ -46,13 +47,26 @@ eval cmd = do
         Right token -> evalToken token
 
 evalToken :: JToken -> ReplState (Maybe String)
-evalToken (Value item) = do
-    store item
-    return Nothing
+evalToken (Value val) = return . Just $ showLess val
 evalToken (Cmd (Print val)) = return . Just $ show val
+evalToken (Cmd (Let id val)) = do
+    store id val
+    return Nothing
+evalToken (Cmd PrintStack) = do
+    stack <- getStack
+    return . Just $ prettyShowStack stack
 
-store :: JValue -> ReplState ()
-store x = do
+store :: String -> JValue -> ReplState ()
+store id x = do
     state <- get
-    put $ JState {stack = x : stack state}
+    put $ JState {stack = (id, x) : stack state}
     return ()
+
+prettyShowStack :: [(String, JValue)] -> String
+prettyShowStack bindings = foldl' concat "" bindings
+    where
+        concat cur (id, val) = cur ++ withPad id ++ "-> " ++ showLess val ++ "\n"
+
+        withPad str = str ++ map (const ' ') [1..(padding - length str)]
+
+        padding = foldl' (\curMax (id, _) -> max curMax $ length id) 0 bindings + 1
