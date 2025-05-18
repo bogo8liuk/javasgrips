@@ -50,19 +50,23 @@ eval cmd = do
 evalToken :: JToken -> ReplState (Maybe String)
 evalToken (Value val) = return . Just $ showLess val
 evalToken (Cmd (Print val)) = return . Just $ show val
---TODO: handle already existing binding
 evalToken (Cmd (Let id val)) = do
-    store id val
-    return Nothing
+    stored <- store id val
+    if stored
+    then return Nothing
+    else return . Just $ ("*** " ++ show RuntimeError)
 evalToken (Cmd PrintStack) = do
     stack <- getStack
     return . Just $ prettyShowStack stack
 
-store :: String -> JValue -> ReplState ()
+store :: String -> JValue -> ReplState Bool
 store id x = do
     state <- get
-    put $ JState {stack = (id, x) : stack state}
-    return ()
+    if any (\(id', _) -> id == id') $ stack state
+    then return False
+    else do
+        put $ JState {stack = (id, x) : stack state}
+        return True
 
 prettyShowStack :: [(String, JValue)] -> String
 prettyShowStack bindings = foldl' concat "" bindings
