@@ -1,0 +1,62 @@
+name:                javasgrips
+version:             0.1.0.0
+github:              "bogo8liuk/javasgrips"
+author:              "Luca Borghi"
+maintainer:          "lucaborghi99@proton.me"
+copyright:           "2025 Luca Borghi"
+
+extra-source-files:
+- README.md
+- CHANGELOG.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/bogo8liuk/javasgrips#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- haskeline >= 0.8
+- mtl >= 2.0
+- unicode-show >= 0.1.1
+- parsec >= 3.1.16
+
+ghc-options:
+- -Wall
+- -Wcompat
+- -Widentities
+- -Wincomplete-record-updates
+- -Wincomplete-uni-patterns
+- -Wmissing-export-lists
+- -Wmissing-home-modules
+- -Wpartial-fields
+- -Wredundant-constraints
+
+library:
+  source-dirs: src
+
+executables:
+  javasgrips-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - javasgrips
+
+tests:
+  javasgrips-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - javasgrips
