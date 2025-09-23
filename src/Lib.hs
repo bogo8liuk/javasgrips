@@ -50,6 +50,15 @@ eval cmd = do
 evalToken :: JToken -> ReplState (Maybe String)
 evalToken (Value val) = return . Just $ showLess val
 evalToken (Cmd (Print val)) = return . Just $ show val
+-- TODO: cfh: handle print of loops and breaks of errors
+evalToken token@(Cmd (Loop Infinite subToken)) = do
+    evalToken subToken
+    evalToken token
+evalToken (Cmd (Loop (Fixed n) subToken))
+    | n <= 0 = return Nothing
+    | otherwise = do
+        evalToken subToken
+        evalToken . Cmd $ Loop (Fixed (n - 1)) subToken
 evalToken (Cmd (Let id val)) = do
     stored <- store id val
     if stored
