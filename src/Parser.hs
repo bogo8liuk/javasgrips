@@ -19,18 +19,22 @@ lexer = makeTokenParser emptyDef
     , identLetter = alphaNum <|> char '_'
     }
 
+parser :: Parser JToken
+parser = do
+    token <- tokenParser
+    eof
+    return token
+
 -- | Parser for a single token
 tokenParser :: Parser JToken
-tokenParser = do
-    token <- choice
+tokenParser =
+    choice
         [ try loopParser
         , try printParser
         , try letParser
         , try (Value <$> valueParser)
         , printStackParser
         ]
-    eof
-    return token
 
 loopParser :: Parser JToken
 loopParser = do

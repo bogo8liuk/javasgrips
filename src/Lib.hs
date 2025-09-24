@@ -14,6 +14,15 @@ newtype JState = JState { stack :: [(String, JValue)] }
 
 type ReplState = StateT JState IO
 
+data EvalResult
+    = Val JValue
+    | Zero
+    | Error JError
+
+isErr :: EvalResult -> Bool
+isErr (Error _) = True
+isErr _ = False
+
 getStack :: ReplState [(String, JValue)]
 getStack = stack <$> get
 
@@ -32,41 +41,53 @@ repl = do
                 Nothing -> return ()
                 Just "quit" -> return ()
                 Just input -> do
-                    resToPrint <- lift $ eval input
-                    eventuallyPrint resToPrint
+                    evalRes <- lift $ eval input
+                    eventuallyPrint evalRes
                     loop
 
-eventuallyPrint :: MonadIO m => Maybe String -> InputT m ()
-eventuallyPrint Nothing = return ()
-eventuallyPrint (Just s) = liftIO . putStrLn $ urecover s
+eventuallyPrint :: MonadIO m => EvalResult -> InputT m ()
+eventuallyPrint Zero = return ()
+eventuallyPrint (Error err) = do
+    let showRes = "*** " ++ show err
+    liftIO $ putStrLn showRes
+eventuallyPrint (Val val) = do
+    let showRes = showLess val
+    liftIO $ putStrLn showRes
 
-eval :: String -> ReplState (Maybe String)
+eval :: String -> ReplState EvalResult
 eval cmd = do
     let parseRes = parseCommand cmd
     case parseRes of
-        Left _ -> return $ Just ("*** " ++ show SyntaxError)
+        Left _ -> return $ Error SyntaxError
         Right token -> evalToken token
 
-evalToken :: JToken -> ReplState (Maybe String)
-evalToken (Value val) = return . Just $ showLess val
-evalToken (Cmd (Print val)) = return . Just $ show val
--- TODO: cfh: handle print of loops and breaks of errors
+evalToken :: JToken -> ReplState EvalResult
+evalToken (Value val) = return $ Val val
+evalToken (Cmd (Print val)) = do
+    liftIO . putStrLn . urecover $ show val
+    return Zero
 evalToken token@(Cmd (Loop Infinite subToken)) = do
-    evalToken subToken
-    evalToken token
+    res <- evalToken subToken
+    if isErr res
+    then return res
+    else evalToken token
 evalToken (Cmd (Loop (Fixed n) subToken))
-    | n <= 0 = return Nothing
+    | n <= 0 = return Zero
     | otherwise = do
-        evalToken subToken
-        evalToken . Cmd $ Loop (Fixed (n - 1)) subToken
+        res <- evalToken subToken
+        if isErr res
+        then return res
+        else evalToken . Cmd $ Loop (Fixed (n - 1)) subToken
 evalToken (Cmd (Let id val)) = do
     stored <- store id val
     if stored
-    then return Nothing
-    else return . Just $ ("*** " ++ show RuntimeError)
+    then return Zero
+    else return $ Error RuntimeError
 evalToken (Cmd PrintStack) = do
     stack <- getStack
-    return . Just $ prettyShowStack stack
+    let showRes = prettyShowStack stack
+    liftIO . putStrLn $ showRes
+    return Zero
 
 store :: String -> JValue -> ReplState Bool
 store id x = do
