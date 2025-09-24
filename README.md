@@ -7,7 +7,7 @@ Actually only the interpreter within a repl is available. The prompt is `AS> `.
 If you know, you know.
 
 ### Types
-The language actually has two types of values: inetegers and strings
+The language actually has two types of values: integers and strings
 ```
 AS> "hello world!"
 "hello world!"
@@ -48,6 +48,40 @@ AS> penetra
 bar    -> 555
 _pippo -> "pluto"
 X      -> 6
+```
+
+### Loops
+Loops are implemented as my colleague answers the phone:
+```
+AS> pronto pronto pronto stampa etichetta "hey sgrips" ciao
+"hey sgrips, ti è piaciuto?"
+"hey sgrips, ti è piaciuto?"
+"hey sgrips, ti è piaciuto?"
+```
+You have to write "pronto" keyword multiple times and the number of times you
+wrote it is the number of cycles. You have to add the "ciao" keyword to close
+the statement.
+```
+AS> pronto pronto pronto pronto pronto stampa etichetta 42 ciao
+42
+42
+42
+42
+42
+```
+
+#### Infinite loops
+There infinite as well, just write "pronto" once:
+```
+AS> pronto stampa etichetta "love .NET" ciao
+"love .NET, ti è piaciuto?"
+"love .NET, ti è piaciuto?"
+"love .NET, ti è piaciuto?"
+"love .NET, ti è piaciuto?"
+"love .NET, ti è piaciuto?"
+"love .NET, ti è piaciuto?"
+"love .NET, ti è piaciuto?"
+...
 ```
 
 ### Errors
